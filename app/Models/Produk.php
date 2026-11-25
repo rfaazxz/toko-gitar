@@ -10,11 +10,11 @@ class Produk extends Model
     use HasFactory;
 
     protected $fillable = [
-    'nama',
-    'harga',
-    'stok',
-    'kategori',
-    'deskripsi',
-    'gambar',
-];
+        'nama',
+        'harga',
+        'stok',
+        'kategori',
+        'deskripsi',
+        'gambar',
+    ];
 }

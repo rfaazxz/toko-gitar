@@ -3,173 +3,229 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TechStore Admin - Dashboard CRUD Produk</title>
-    <!-- Bootstrap 5 CSS & FontAwesome Icons -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <title>Kelola Produk — Fret Factory</title>
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap">
     <style>
-        body { background-color: #f4f6f9; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-        .navbar-brand { font-weight: 700; letter-spacing: 1px; }
-        .stat-card { border: none; border-radius: 12px; transition: transform 0.2s; }
-        .stat-card:hover { transform: translateY(-3px); }
-        .product-card { border: none; border-radius: 15px; overflow: hidden; transition: all 0.3s ease; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
-        .product-card:hover { transform: translateY(-5px); box-shadow: 0 8px 24px rgba(0,0,0,0.12); }
-        .product-img { height: 180px; object-fit: cover; background-color: #e9ecef; }
-        .badge-category { position: absolute; top: 12px; right: 12px; font-size: 0.75rem; border-radius: 20px; }
+        :root {
+            --ink: #0e0c09;
+            --paper: #f5f0e8;
+            --amber: #c8862a;
+            --amber-warm: #e09a30;
+            --muted: #8c7e68;
+            --card-bg: #191510;
+            --card-border: rgba(200,134,42,0.15);
+            --font-display: 'Playfair Display', Georgia, serif;
+            --font-body: 'DM Sans', system-ui, sans-serif;
+            --font-mono: 'DM Mono', monospace;
+        }
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: var(--font-body);
+            background: #0e0c09;
+            color: #f5f0e8;
+            min-height: 100vh;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* NAV */
+        .navbar {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 0 2.5rem; height: 68px;
+            background: rgba(14,12,9,0.95);
+            border-bottom: 1px solid rgba(200,134,42,0.12);
+            position: sticky; top: 0; z-index: 50;
+        }
+        .logo { font-family: var(--font-display); font-weight: 900; font-size: 1.3rem; color: #f5f0e8; text-decoration: none; letter-spacing: -0.02em; }
+        .logo em { font-style: italic; color: var(--amber); }
+        .nav-right { display: flex; align-items: center; gap: 1rem; }
+        .nav-link { font-size: 0.75rem; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; color: rgba(245,240,232,0.5); text-decoration: none; transition: color 0.2s; }
+        .nav-link:hover { color: #f5f0e8; }
+        .btn { display: inline-flex; align-items: center; gap: 0.4rem; font-size: 0.75rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; padding: 0.5rem 1.1rem; border-radius: 2px; border: none; cursor: pointer; text-decoration: none; transition: all 0.2s; }
+        .btn-amber { background: var(--amber); color: #0e0c09; }
+        .btn-amber:hover { background: var(--amber-warm); }
+        .btn-ghost { background: transparent; color: rgba(245,240,232,0.5); border: 1px solid rgba(245,240,232,0.12); }
+        .btn-ghost:hover { color: #f5f0e8; border-color: rgba(245,240,232,0.3); }
+        .btn-danger { background: rgba(239,68,68,0.1); color: #f87171; border: 1px solid rgba(239,68,68,0.2); }
+        .btn-danger:hover { background: rgba(239,68,68,0.2); }
+
+        /* LAYOUT */
+        .page { max-width: 1200px; margin: 0 auto; padding: 2.5rem 2rem; }
+
+        /* PAGE HEADER */
+        .page-header { display: flex; align-items: flex-end; justify-content: space-between; gap: 1rem; margin-bottom: 2rem; flex-wrap: wrap; }
+        .page-eyebrow { font-family: var(--font-mono); font-size: 0.6rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--amber); opacity: 0.8; margin-bottom: 0.4rem; }
+        .page-title { font-family: var(--font-display); font-size: 2rem; font-weight: 700; letter-spacing: -0.02em; color: #f5f0e8; }
+
+        /* ALERT */
+        .alert { padding: 0.9rem 1.25rem; border-radius: 2px; font-size: 0.8rem; font-weight: 500; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.6rem; }
+        .alert-success { background: rgba(74,222,128,0.08); border: 1px solid rgba(74,222,128,0.2); color: #4ade80; }
+        .alert-error   { background: rgba(239,68,68,0.08);  border: 1px solid rgba(239,68,68,0.2);  color: #f87171; }
+
+        /* TABLE */
+        .table-wrap { border: 1px solid rgba(200,134,42,0.1); border-radius: 2px; overflow: hidden; }
+        table { width: 100%; border-collapse: collapse; }
+        thead { background: rgba(200,134,42,0.06); border-bottom: 1px solid rgba(200,134,42,0.12); }
+        thead th { font-family: var(--font-mono); font-size: 0.6rem; letter-spacing: 0.16em; text-transform: uppercase; color: rgba(200,134,42,0.7); padding: 0.9rem 1.25rem; text-align: left; font-weight: 500; }
+        tbody tr { border-bottom: 1px solid rgba(245,240,232,0.04); transition: background 0.15s; }
+        tbody tr:last-child { border-bottom: none; }
+        tbody tr:hover { background: rgba(200,134,42,0.04); }
+        tbody td { padding: 1rem 1.25rem; font-size: 0.85rem; color: rgba(245,240,232,0.75); vertical-align: middle; }
+        .td-name { font-family: var(--font-display); font-size: 0.95rem; font-weight: 700; color: #f5f0e8; }
+        .td-price { font-variant-numeric: tabular-nums; color: var(--amber); font-weight: 600; }
+        .badge { display: inline-block; font-family: var(--font-mono); font-size: 0.58rem; letter-spacing: 0.12em; text-transform: uppercase; padding: 0.25rem 0.6rem; border-radius: 1px; background: rgba(200,134,42,0.1); color: rgba(200,134,42,0.9); border: 1px solid rgba(200,134,42,0.2); }
+        .stock-ok  { color: #4ade80; }
+        .stock-low { color: #fbbf24; }
+        .stock-out { color: #f87171; }
+
+        .td-foto img { width: 48px; height: 48px; object-fit: cover; border-radius: 2px; border: 1px solid rgba(200,134,42,0.15); }
+        .td-foto .no-foto { width: 48px; height: 48px; background: rgba(200,134,42,0.06); border: 1px solid rgba(200,134,42,0.1); border-radius: 2px; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; opacity: 0.4; }
+
+        .actions { display: flex; gap: 0.5rem; }
+
+        /* EMPTY */
+        .empty { padding: 5rem 2rem; text-align: center; }
+        .empty-icon { font-size: 2.5rem; opacity: 0.15; display: block; margin-bottom: 1rem; }
+        .empty-title { font-family: var(--font-display); font-size: 1.3rem; font-weight: 700; color: rgba(245,240,232,0.4); margin-bottom: 0.5rem; }
+        .empty-sub { font-size: 0.8rem; color: rgba(245,240,232,0.2); margin-bottom: 1.5rem; }
+
+        /* STATS */
+        .stats-row { display: flex; gap: 1px; background: rgba(200,134,42,0.08); border: 1px solid rgba(200,134,42,0.08); border-radius: 2px; margin-bottom: 2rem; overflow: hidden; }
+        .stat-box { flex: 1; background: #0e0c09; padding: 1.25rem 1.5rem; min-width: 0; }
+        .stat-box-num { font-family: var(--font-display); font-size: 1.75rem; font-weight: 700; color: #f5f0e8; }
+        .stat-box-label { font-family: var(--font-mono); font-size: 0.6rem; letter-spacing: 0.14em; text-transform: uppercase; color: rgba(200,134,42,0.6); margin-top: 0.25rem; }
+
+        @media (max-width: 640px) {
+            .navbar { padding: 0 1rem; }
+            .page { padding: 1.5rem 1rem; }
+            .stats-row { flex-direction: column; }
+            thead th:nth-child(3), tbody td:nth-child(3) { display: none; }
+        }
     </style>
 </head>
 <body>
 
-    <!-- Navbar -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm mb-4">
-        <div class="container">
-            <a class="navbar-brand" href="/produk"><i class="fa-solid fa-store me-2 text-warning"></i>RaffStore Admin</a>
-            <a href="/produk/create" class="btn btn-warning fw-bold"><i class="fa-solid fa-plus me-1"></i> Tambah Produk</a>
+<nav class="navbar">
+    <a href="{{ url('/') }}" class="logo">Fret<em>Factory</em></a>
+    <div class="nav-right">
+        <a href="{{ url('/') }}" class="nav-link">Beranda</a>
+        <form method="POST" action="{{ route('logout') }}" style="display:inline">
+            @csrf
+            <button type="submit" class="btn btn-ghost">Logout</button>
+        </form>
+    </div>
+</nav>
+
+<div class="page">
+
+    <!-- Page Header -->
+    <div class="page-header">
+        <div>
+            <div class="page-eyebrow">Admin Panel</div>
+            <h1 class="page-title">Kelola Produk</h1>
         </div>
-    </nav>
-
-    <div class="container">
-
-        <!-- Flash Message -->
-        @if (session('success'))
-            <div class="alert alert-success alert-dismissible fade show shadow-sm border-0 mb-4" role="alert">
-                <strong><i class="fa-solid fa-circle-check me-2"></i>Berhasil!</strong> {{ session('success') }}
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-            </div>
-        @endif
-
-        <!-- Widget Statistik Gokil -->
-        <div class="row g-3 mb-4">
-            <div class="col-md-4">
-                <div class="card stat-card bg-primary text-white shadow-sm p-3">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <h6 class="text-white-50 text-uppercase fw-semibold mb-1">Total Produk</h6>
-                            <h2 class="fw-bold mb-0">{{ $totalProduk }}</h2>
-                        </div>
-                        <i class="fa-solid fa-boxes-stacked fa-2x opacity-50"></i>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="card stat-card bg-success text-white shadow-sm p-3">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <h6 class="text-white-50 text-uppercase fw-semibold mb-1">Estimasi Nilai Aset</h6>
-                            <h2 class="fw-bold mb-0">Rp {{ number_format($totalAset, 0, ',', '.') }}</h2>
-                        </div>
-                        <i class="fa-solid fa-wallet fa-2x opacity-50"></i>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="card stat-card bg-danger text-white shadow-sm p-3">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <h6 class="text-white-50 text-uppercase fw-semibold mb-1">Stok Habis</h6>
-                            <h2 class="fw-bold mb-0">{{ $stokHabis }} Item</h2>
-                        </div>
-                        <i class="fa-solid fa-triangle-exclamation fa-2x opacity-50"></i>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Filter & Search Bar -->
-        <div class="card border-0 shadow-sm rounded-4 p-3 mb-4">
-            <form action="/produk" method="GET" class="row g-2 align-items-center">
-                <div class="col-md-4">
-                    <div class="input-group">
-                        <span class="input-group-text bg-light border-end-0"><i class="fa-solid fa-magnifying-glass text-muted"></i></span>
-                        <input type="text" name="search" class="form-control bg-light border-start-0" placeholder="Cari produk..." value="{{ request('search') }}">
-                    </div>
-                </div>
-                <div class="col-md-3">
-                    <select name="kategori" class="form-select bg-light">
-                        <option value="">-- Semua Kategori --</option>
-                        @foreach ($kategoriList as $kat)
-                            <option value="{{ $kat }}" {{ request('kategori') == $kat ? 'selected' : '' }}>{{ $kat }}</option>
-                        @endforeach
-                    </select>
-                </div>
-                <div class="col-md-3">
-                    <select name="sort" class="form-select bg-light">
-                        <option value="">-- Urutkan --</option>
-                        <option value="harga_asc" {{ request('sort') == 'harga_asc' ? 'selected' : '' }}>Harga Terendah</option>
-                        <option value="harga_desc" {{ request('sort') == 'harga_desc' ? 'selected' : '' }}>Harga Tertinggi</option>
-                        <option value="stok_asc" {{ request('sort') == 'stok_asc' ? 'selected' : '' }}>Stok Tersedikit</option>
-                    </select>
-                </div>
-                <div class="col-md-2 d-flex gap-2">
-                    <button type="submit" class="btn btn-primary w-100"><i class="fa-solid fa-filter me-1"></i> Filter</button>
-                    @if(request('search') || request('kategori') || request('sort'))
-                        <a href="/produk" class="btn btn-outline-secondary"><i class="fa-solid fa-rotate"></i></a>
-                    @endif
-                </div>
-            </form>
-        </div>
-
-        <!-- Catalog Cards -->
-        <div class="row g-4">
-            @forelse ($produks as $produk)
-                <div class="col-md-6 col-lg-4">
-                    <div class="card product-card h-100 position-relative">
-                        <!-- Category Badge -->
-                        <span class="badge bg-dark badge-category px-3 py-2">{{ $produk->kategori }}</span>
-
-                        <!-- Image -->
-                        @if ($produk->gambar)
-                            <img src="{{ asset('storage/' . $produk->gambar) }}" class="card-img-top product-img" alt="{{ $produk->nama }}">
-                        @else
-                            <div class="product-img d-flex align-items-center justify-content-center text-muted">
-                                <i class="fa-solid fa-image fa-3x"></i>
-                            </div>
-                        @endif
-
-                        <div class="card-body d-flex flex-column">
-                            <h5 class="card-title fw-bold text-dark mb-1">{{ $produk->nama }}</h5>
-                            <p class="card-text text-muted small mb-3">{{ Str::limit($produk->deskripsi, 70) }}</p>
-
-                            <div class="mt-auto">
-                                <div class="d-flex justify-content-between align-items-center mb-3">
-                                    <h4 class="text-success fw-bold mb-0">Rp {{ number_format($produk->harga, 0, ',', '.') }}</h4>
-                                    
-                                    <!-- Stock Badge -->
-                                    @if ($produk->stok == 0)
-                                        <span class="badge bg-danger-subtle text-danger fw-bold border border-danger">Habis</span>
-                                    @elseif ($produk->stok <= 5)
-                                        <span class="badge bg-warning-subtle text-warning-emphasis fw-bold border border-warning">Sisa {{ $produk->stok }}</span>
-                                    @else
-                                        <span class="badge bg-success-subtle text-success fw-bold border border-success">Stok: {{ $produk->stok }}</span>
-                                    @endif
-                                </div>
-
-                                <div class="d-flex gap-2">
-                                    <a href="/produk/{{ $produk->id }}/edit" class="btn btn-outline-primary btn-sm w-100 fw-semibold"><i class="fa-solid fa-pen-to-square me-1"></i> Edit</a>
-                                    
-                                    <form action="/produk/{{ $produk->id }}" method="POST" class="w-100" onsubmit="return confirm('Yakin mau hapus produk ini?')">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="btn btn-outline-danger btn-sm w-100 fw-semibold"><i class="fa-solid fa-trash me-1"></i> Hapus</button>
-                                    </form>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            @empty
-                <div class="col-12">
-                    <div class="text-center py-5 bg-white rounded-4 shadow-sm">
-                        <i class="fa-solid fa-box-open fa-4x text-muted mb-3"></i>
-                        <h4 class="text-muted">Produk Tidak Ditemukan</h4>
-                        <p class="text-secondary">Coba ubah kata kunci pencarian atau reset filter.</p>
-                    </div>
-                </div>
-            @endforelse
-        </div>
-
+        <a href="{{ route('produk.create') }}" class="btn btn-amber">
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
+                <path d="M6 1v10M1 6h10" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+            </svg>
+            Tambah Produk
+        </a>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Alert -->
+    @if(session('success'))
+        <div class="alert alert-success">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true"><circle cx="7" cy="7" r="6" stroke="currentColor" stroke-width="1.4"/><path d="m4.5 7 2 2 3-3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            {{ session('success') }}
+        </div>
+    @endif
+    @if(session('error'))
+        <div class="alert alert-error">{{ session('error') }}</div>
+    @endif
+
+    <!-- Stats -->
+    @php
+        $totalProduk = $produks->count();
+        $totalStok   = $produks->sum('stok');
+        $totalNilai  = $produks->sum(fn($p) => ($p->harga ?? 0) * ($p->stok ?? 0));
+    @endphp
+    <div class="stats-row">
+        <div class="stat-box">
+            <div class="stat-box-num">{{ $totalProduk }}</div>
+            <div class="stat-box-label">Total Produk</div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-box-num">{{ number_format($totalStok, 0, ',', '.') }}</div>
+            <div class="stat-box-label">Total Stok</div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-box-num" style="font-size:1.2rem">Rp {{ number_format($totalNilai, 0, ',', '.') }}</div>
+            <div class="stat-box-label">Nilai Inventori</div>
+        </div>
+    </div>
+
+    <!-- Table -->
+    <div class="table-wrap">
+        @if($produks->isEmpty())
+            <div class="empty">
+                <span class="empty-icon">🎸</span>
+                <h3 class="empty-title">Belum Ada Produk</h3>
+                <p class="empty-sub">Tambahkan instrumen pertama ke katalog kamu.</p>
+                <a href="{{ route('produk.create') }}" class="btn btn-amber">Tambah Produk</a>
+            </div>
+        @else
+            <table>
+                <thead>
+                    <tr>
+                        <th>Foto</th>
+                        <th>Nama Produk</th>
+                        <th>Kategori</th>
+                        <th>Harga</th>
+                        <th>Stok</th>
+                        <th>Aksi</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach($produks as $produk)
+                        @php
+                            $fotoUrl = null;
+                            $fileFoto = $produk->foto ?? $produk->gambar ?? $produk->image ?? $produk->photo ?? null;
+                            if (!empty($fileFoto)) {
+                                $fotoUrl = filter_var($fileFoto, FILTER_VALIDATE_URL) ? $fileFoto : asset('storage/' . $fileFoto);
+                            }
+                            $namaProduk = $produk->nama ?? $produk->nama_produk ?? '-';
+                            $stok = $produk->stok ?? 0;
+                            $stokClass = $stok === 0 ? 'stock-out' : ($stok <= 3 ? 'stock-low' : 'stock-ok');
+                        @endphp
+                        <tr>
+                            <td class="td-foto">
+                                @if($fotoUrl)
+                                    <img src="{{ $fotoUrl }}" alt="{{ $namaProduk }}">
+                                @else
+                                    <div class="no-foto">🎸</div>
+                                @endif
+                            </td>
+                            <td class="td-name">{{ $namaProduk }}</td>
+                            <td><span class="badge">{{ $produk->kategori ?? '-' }}</span></td>
+                            <td class="td-price">Rp {{ number_format($produk->harga ?? 0, 0, ',', '.') }}</td>
+                            <td class="{{ $stokClass }}">{{ $stok }} pcs</td>
+                            <td>
+                                <div class="actions">
+                                    <a href="{{ route('produk.edit', $produk->id) }}" class="btn btn-ghost">Edit</a>
+                                    <form method="POST" action="{{ route('produk.destroy', $produk->id) }}" onsubmit="return confirm('Hapus produk ini?')">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="btn btn-danger">Hapus</button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        @endif
+    </div>
+
+</div>
 </body>
 </html>

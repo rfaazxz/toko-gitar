@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ProdukController;
+use App\Http\Controllers\CheckoutController;
 use App\Models\Produk;
 use Illuminate\Support\Facades\Route;
 
@@ -11,7 +12,11 @@ Route::get('/', function () {
     return view('welcome', compact('produks'));
 });
 
-// 2. Area Terproteksi (Middleware Auth)
+// 2. Simulasi Payment Dummy (Public / bisa diakses langsung saat test)
+Route::get('/checkout/{produk}', [CheckoutController::class, 'show'])->name('checkout.show');
+Route::post('/checkout/{produk}/bayar', [CheckoutController::class, 'process'])->name('checkout.process');
+
+// 3. Area Terproteksi (Middleware Auth)
 Route::middleware(['auth', 'verified'])->group(function () {
 
     // Dashboard
@@ -28,4 +33,4 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-require __DIR__.'/auth.php';    
+require __DIR__.'/auth.php';
